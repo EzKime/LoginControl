@@ -9,8 +9,9 @@ pName = 'Login Control English'
 pVersion = '0.0.6'
 
 """
-The number of attempts is set to 99. It will try to queue until it is blocked by the server.
-If it is blocked by the server, it will be blocked for 24 hours. in this case if he keeps trying the ip will be blocked
+stage 1=If it doesn't queue after the first 35 tries, it takes a 60-minute break.
+stage 2=If it can't queue after 70 tries, it will go to sleep mode for 24 hours. If the number of rows drops below 850, it will be awakened.
+stage 3=If it is blocked by the server, it will be blocked for 24 hours. in this case if he keeps trying the ip will be blocked
 """
 
 userName = get_startup_data()['username']
