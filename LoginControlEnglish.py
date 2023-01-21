@@ -4,14 +4,23 @@ import struct
 import sqlite3
 from datetime import datetime
 from datetime import timedelta
+import QtBind
 
 pName = 'Login Control English'
-pVersion = '0.0.6'
+pVersion = '0.0.7'
+gui = QtBind.init(__name__, pName)
+created = QtBind.createLabel(gui, 'By EzKime', 670, 297)
 
-"""
-The number of attempts is set to 99. It will try to queue until it is blocked by the server.
-If it is blocked by the server, it will be blocked for 24 hours. in this case if he keeps trying the ip will be blocked
-"""
+lblInfo = QtBind.createLabel(gui, 'The number of attempts is set to 99.'
+                                  '\nIt will try to queue until it is blocked by the server.'
+                                  '\nIf it is blocked by the server, it will be blocked for 24 hours.'
+                                  '\nIn this case if he keeps trying the ip will be blocked'
+                                  '\nSince this plugin has too many queue attempts due to excessive'
+                                  '\ndensity on (US) servers,'
+                                  '\nthe account will be blocked for 24 hours when the account cannot'
+                                  '\nenter the queue after 100 attempts.'
+                                  '\nThe advantage of this plugin is that it does not make the accounts'
+                                  '\nthat are blocked on the server need to be logged in again and again.', 350, 50)
 
 userName = get_startup_data()['username']
 query = ("""SELECT * FROM LoginControl WHERE userName='%s'""" % userName)
@@ -25,6 +34,31 @@ cur = con.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER,PRIMARY KEY("Id"))')
 con.commit()
 con.close()
+
+
+
+blockAcc = QtBind.createLabel(gui, 'Blocked Accounts', 60, 35)
+Display = QtBind.createList(gui, 9, 50, 180, 240)
+check = QtBind.createButton(gui, 'check', ' Check ', 205, 50)
+blokeAcc = "SELECT * FROM LoginControl where Id>0 ORDER by blockingTime ASC"
+def check():
+    count = 0
+    conn = sqlite3.connect(dataBase)
+    curs = conn.cursor()
+    curs.execute(blokeAcc)
+    accounts = curs.fetchall()
+    QtBind.clear(gui, Display)
+    QtBind.append(gui, Display, '')
+    dateTime = datetime.now()
+    for account in accounts:
+        blockingTime = datetime.fromisoformat(account[3])
+        if account[5] > 0 and blockingTime > dateTime:
+            count += 1
+            dateTime = datetime.now()
+            min = int((blockingTime - dateTime).seconds / 60)
+            result = f'{count} - {min}-Min---{account[1]}'
+            QtBind.append(gui, Display, result)
+
 
 def connected():
     conn = sqlite3.connect(dataBase)
