@@ -12,17 +12,6 @@ pVersion = '0.0.8'
 gui = QtBind.init(__name__, pName)
 created = QtBind.createLabel(gui, 'By EzKime', 670, 297)
 
-lblInfo = QtBind.createLabel(gui, 'The number of attempts is set to 99.'
-                                  '\nIt will try to queue until it is blocked by the server.'
-                                  '\nIf it is blocked by the server, it will be blocked for 24 hours.'
-                                  '\nIn this case if he keeps trying the ip will be blocked'
-                                  '\nSince this plugin has too many queue attempts due to excessive'
-                                  '\ndensity on (US) servers,'
-                                  '\nthe account will be blocked for 24 hours when the account cannot'
-                                  '\nenter the queue after 100 attempts.'
-                                  '\nThe advantage of this plugin is that it does not make the accounts'
-                                  '\nthat are blocked on the server need to be logged in again and again.', 350, 50)
-
 userName = get_startup_data()['username']
 query = ("""SELECT * FROM LoginControl WHERE userName='%s'""" % userName)
 maxCount = 100
@@ -35,6 +24,19 @@ cur = con.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER, "luckyBoxCount" INTEGER,PRIMARY KEY("Id"))')
 con.commit()
 con.close()
+
+lblInfo = QtBind.createLabel(gui, f'The number of attempts is set to {maxCount}.'
+                                  '\nIt will try to queue until it is blocked by the server.'
+                                  '\nIf it is blocked by the server, it will be blocked for 24 hours.'
+                                  '\nIn this case if he keeps trying the ip will be blocked'
+                                  '\nSince this plugin has too many queue attempts due to excessive'
+                                  '\ndensity on (US) servers,'
+                                  '\nthe account will be blocked for 24 hours when the account cannot'
+                                  '\nenter the queue after 100 attempts.'
+                                  '\nThe advantage of this plugin is that it does not make the accounts'
+                                  '\nthat are blocked on the server need to be logged in again and again.', 350, 50)
+
+
 
 
 
@@ -195,7 +197,7 @@ def updateAccount():
         conn.close()
         dk = random.randint(2, 5)
         while range(dk):
-            log(f'{dk} Dakika sonra tekrar deneme yapilacak.')
+            log(f'{dk} There will be a retry in minutes.')
             dk -= 1
             time.sleep(60)
 
