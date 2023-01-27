@@ -5,9 +5,10 @@ import sqlite3
 from datetime import datetime
 from datetime import timedelta
 import QtBind
+import random
 
 pName = 'Login Control English'
-pVersion = '0.0.7'
+pVersion = '0.0.8'
 gui = QtBind.init(__name__, pName)
 created = QtBind.createLabel(gui, 'By EzKime', 670, 297)
 
@@ -24,14 +25,14 @@ lblInfo = QtBind.createLabel(gui, 'The number of attempts is set to 99.'
 
 userName = get_startup_data()['username']
 query = ("""SELECT * FROM LoginControl WHERE userName='%s'""" % userName)
-maxCount = 99
+maxCount = 100
 minSec = 60
 block1 = 60
 block24 = 1440
 dataBase = get_config_dir() + "AccountLoginControl.db3"
 con = sqlite3.connect(dataBase)
 cur = con.cursor()
-cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER,PRIMARY KEY("Id"))')
+cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER, "luckyBoxCount" INTEGER,PRIMARY KEY("Id"))')
 con.commit()
 con.close()
 
@@ -48,7 +49,7 @@ def check():
     curs.execute(blokeAcc)
     accounts = curs.fetchall()
     QtBind.clear(gui, Display)
-    QtBind.append(gui, Display, '')
+    QtBind.append(gui, Display, '       Minute   +  Accounts')
     dateTime = datetime.now()
     for account in accounts:
         blockingTime = datetime.fromisoformat(account[3])
@@ -162,8 +163,8 @@ def updateAccount():
     userData = curs.fetchone()
     # If the record is entered for the first time, it will be entered here.
     if userData is None:
-        sql = "INSERT into LoginControl(userName, loginCount, blockingTime, blockType, blockCount, MaxQueue, logCount) VALUES (?,?,?,?,?,?,?)"
-        val = (userName, 1, dateTime, 0, 0, 0, 1)
+        sql = "INSERT into LoginControl(userName, loginCount, blockingTime, blockType, blockCount, MaxQueue, logCount, luckyBoxCount) VALUES (?,?,?,?,?,?,?,?)"
+        val = (userName, 1, dateTime, 0, 0, 0, 1, 0)
         curs.execute(sql, val)
         conn.commit()
         conn.close()
@@ -192,6 +193,12 @@ def updateAccount():
         curs.execute("Update LoginControl Set loginCount = %s, logCount=%s WHERE userName='%s' " % (loginCount, logCount, userName))
         conn.commit()
         conn.close()
+        dk = random.randint(2, 5)
+        while range(dk):
+            log(f'{dk} Dakika sonra tekrar deneme yapilacak.')
+            dk -= 1
+            time.sleep(60)
+
 
 def handle_joymax(opcode, data):
     bloke =  'Your account is blocked for 24 hours due to repeated login attempts. Please try again when your account is unblocked.'
