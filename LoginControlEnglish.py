@@ -8,7 +8,7 @@ import QtBind
 import random
 
 pName = 'Login Control English'
-pVersion = '0.0.8'
+pVersion = '0.0.9'
 gui = QtBind.init(__name__, pName)
 created = QtBind.createLabel(gui, 'By EzKime', 670, 297)
 
@@ -21,7 +21,7 @@ block24 = 1440
 dataBase = get_config_dir() + "AccountLoginControl.db3"
 con = sqlite3.connect(dataBase)
 cur = con.cursor()
-cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER, "luckyBoxCount" INTEGER,PRIMARY KEY("Id"))')
+cur.execute('CREATE TABLE IF NOT EXISTS "LoginControl" ("Id" INTEGER NOT NULL, "userName" TEXT NOT NULL,"loginCount" INTEGER NOT NULL,"blockingTime" TEXT,"blockType" INTEGER,"blockCount" INTEGER,"MaxQueue" INTEGER,"logCount" INTEGER, PRIMARY KEY("Id"))')
 con.commit()
 con.close()
 
@@ -165,8 +165,8 @@ def updateAccount():
     userData = curs.fetchone()
     # If the record is entered for the first time, it will be entered here.
     if userData is None:
-        sql = "INSERT into LoginControl(userName, loginCount, blockingTime, blockType, blockCount, MaxQueue, logCount, luckyBoxCount) VALUES (?,?,?,?,?,?,?,?)"
-        val = (userName, 1, dateTime, 0, 0, 0, 1, 0)
+        sql = "INSERT into LoginControl(userName, loginCount, blockingTime, blockType, blockCount, MaxQueue, logCount) VALUES (?,?,?,?,?,?,?)"
+        val = (userName, 1, dateTime, 0, 0, 0, 1)
         curs.execute(sql, val)
         conn.commit()
         conn.close()
@@ -213,20 +213,6 @@ def handle_joymax(opcode, data):
     # When the character logs into the game.
     elif opcode == 0xA103 and data == b'\x01\x03\x00':
         reset()
-    '''
-    elif opcode == 0x210E:
-        if data[0] == 1:
-            Index = 1
-            MaxQueue = struct.unpack_from('<H', data, Index)[0]
-            if MaxQueue <= 850:
-                dataBase2 = get_config_dir() + "AccountLoginControl.db3"
-                conn = sqlite3.connect(dataBase2)
-                curs = conn.cursor()
-                curs.execute("Update LoginControl Set MaxQueue = %s WHERE blockType=%s and blockCount > %s and blockCount < %s " % (1, 1, 0, 3))
-                conn.commit()
-                conn.close()
-                log('It started to wake up from sleep...Queue attempt Queue < 850 Stage 1 and 2 will be awakened.')
-    '''
     return True
 
 log(f'Plugin: {pName} Version {pVersion} Loaded')
